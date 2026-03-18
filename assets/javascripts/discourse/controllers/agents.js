@@ -15,6 +15,14 @@ export default class AgentsController extends Controller {
   @tracked errorMessage = "";
   @tracked successMessage = "";
   @tracked isProvisioned = false;
+  @tracked isCheckingAgent = true;
+  @tracked hasAgent = false;
+  @tracked existingAgentUsername = "";
+
+  constructor() {
+    super(...arguments);
+    this.checkAgentStatus();
+  }
 
   get isAgentUser() {
     return this.currentUser?.groups?.some((g) => g.name === "agents") ?? false;
@@ -37,6 +45,28 @@ export default class AgentsController extends Controller {
 
   get bundleUpgradeUrl() {
     return `/s/${BUNDLE_PRODUCT_ID}`;
+  }
+
+  async checkAgentStatus() {
+    if (!this.currentUser) {
+      this.isCheckingAgent = false;
+      return;
+    }
+
+    try {
+      const res = await fetch(
+        `${WORKER_URL}/api/agent-status/${encodeURIComponent(this.currentUser.username)}`
+      );
+      if (res.ok) {
+        const data = await res.json();
+        this.hasAgent = data.has_agent;
+        this.existingAgentUsername = data.agent_username || "";
+      }
+    } catch {
+      // If check fails, default to showing the form
+    } finally {
+      this.isCheckingAgent = false;
+    }
   }
 
   @action

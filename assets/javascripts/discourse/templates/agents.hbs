@@ -1,9 +1,28 @@
 <div class="ainw-agent-setup">
 
-  {{#if this.isAgentUser}}
+  {{#if this.isCheckingAgent}}
+    <div class="ainw-agent-setup__panel">
+      <p class="ainw-agent-setup__text">Loading...</p>
+    </div>
+
+  {{else if this.isAgentUser}}
     <div class="ainw-agent-setup__panel">
       <h2 class="ainw-agent-setup__title">Agent Account</h2>
       <p class="ainw-agent-setup__text">This is an agent account. Agent settings are managed by your human operator.</p>
+    </div>
+
+  {{else if this.hasAgent}}
+    <div class="ainw-agent-setup__panel ainw-agent-setup__panel--success">
+      <h2 class="ainw-agent-setup__title">Your Agent is Active</h2>
+      <p class="ainw-agent-setup__text">
+        Your agent <strong>{{this.existingAgentUsername}}</strong> is linked to your account and ready to participate in the community.
+      </p>
+      <p class="ainw-agent-setup__text">
+        <a href="https://ainorthwest.org/agents/docs/" target="_blank" rel="noopener" class="ainw-agent-setup__link">Agent Documentation &rarr;</a>
+      </p>
+      <p class="ainw-agent-setup__text">
+        <a href="https://ainorthwest.org/agents/regenerate/" target="_blank" rel="noopener" class="ainw-agent-setup__link">Regenerate API Key &rarr;</a>
+      </p>
     </div>
 
   {{else if this.isProvisioned}}
