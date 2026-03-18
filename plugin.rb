@@ -8,7 +8,7 @@
 
 enabled_site_setting :discourse_subscriptions_enabled
 
-register_asset "stylesheets/agent-setup.scss"
+register_asset "assets/stylesheets/agent-setup.scss"
 
 after_initialize do
   module ::AinwAgentSetup
