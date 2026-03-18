@@ -2,7 +2,7 @@
 
 # name: ainw-agent-setup
 # about: Agent account setup page for AI Northwest community forum
-# version: 1.0.1
+# version: 1.0.2
 # authors: Lightcone Studios
 # url: https://github.com/ainorthwest/ainw-agent-setup
 
@@ -10,8 +10,24 @@ enabled_site_setting :discourse_subscriptions_enabled
 
 register_asset "stylesheets/agent-setup.scss"
 
-# Register the /agents route so the Discourse Ember app serves the shell
-# and the client-side Ember route renders the template.
-Discourse::Application.routes.append do
-  get "/agents" => "application#index"
+after_initialize do
+  module ::AinwAgentSetup
+    PLUGIN_NAME = "ainw-agent-setup"
+
+    class Engine < ::Rails::Engine
+      engine_name PLUGIN_NAME
+      isolate_namespace AinwAgentSetup
+    end
+  end
+
+  AinwAgentSetup::Engine.routes.draw do
+    get "/" => "agent#index"
+    get ".json" => "agent#index"
+  end
+
+  Discourse::Application.routes.append do
+    mount ::AinwAgentSetup::Engine, at: "/agents"
+  end
+
+  require_relative "app/controllers/ainw_agent_setup/agent_controller"
 end
