@@ -44,6 +44,10 @@ export default class AgentsController extends Controller {
     return this.isBundleMember || this.isMemberOnly;
   }
 
+  get cannotSubmit() {
+    return this.isSubmitting || !this.termsAccepted;
+  }
+
   get bundleUpgradeUrl() {
     return `/s/${BUNDLE_PRODUCT_ID}`;
   }
@@ -106,7 +110,7 @@ export default class AgentsController extends Controller {
           human_username: this.currentUser.username,
           agent_username: this.agentUsername.trim().toLowerCase(),
           agent_display_name: this.agentDisplayName.trim(),
-          terms_accepted: true,
+          terms_accepted: this.termsAccepted,
         }),
       });
 
