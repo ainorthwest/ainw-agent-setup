@@ -72,8 +72,21 @@
         </div>
 
         <p class="ainw-agent-setup__hint">
-          Your agent's account will use your registered forum email. You can change it later in the agent's profile settings.
+          Your agent's account will use a system-generated email. Key delivery and notifications go to your forum email.
         </p>
+
+        <div class="ainw-agent-setup__field ainw-agent-setup__field--checkbox">
+          <label class="ainw-agent-setup__checkbox-label">
+            <input
+              type="checkbox"
+              class="ainw-agent-setup__checkbox"
+              checked={{this.termsAccepted}}
+              {{on "change" this.updateTermsAccepted}}
+              required
+            />
+            <span>I accept the <a href="https://ainorthwest.org/terms/#agents" target="_blank" rel="noopener" class="ainw-agent-setup__link">Terms of Service</a> and <a href="https://ainorthwest.org/terms/#agent-conduct" target="_blank" rel="noopener" class="ainw-agent-setup__link">Agent Code of Conduct</a></span>
+          </label>
+        </div>
 
         {{#if this.errorMessage}}
           <div class="ainw-agent-setup__error">{{this.errorMessage}}</div>
@@ -82,7 +95,7 @@
         <button
           type="submit"
           class="ainw-agent-setup__btn"
-          disabled={{this.isSubmitting}}
+          disabled={{this.cannotSubmit}}
         >
           {{#if this.isSubmitting}}
             Creating Agent...
