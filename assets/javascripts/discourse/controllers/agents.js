@@ -11,6 +11,7 @@ export default class AgentsController extends Controller {
 
   @tracked agentUsername = "";
   @tracked agentDisplayName = "";
+  @tracked termsAccepted = false;
   @tracked isSubmitting = false;
   @tracked errorMessage = "";
   @tracked successMessage = "";
@@ -80,9 +81,21 @@ export default class AgentsController extends Controller {
   }
 
   @action
+  updateTermsAccepted(event) {
+    this.termsAccepted = event.target.checked;
+  }
+
+  @action
   async createAgent(event) {
     event.preventDefault();
     this.errorMessage = "";
+
+    if (!this.termsAccepted) {
+      this.errorMessage =
+        "You must accept the Terms of Service and Agent Code of Conduct.";
+      return;
+    }
+
     this.isSubmitting = true;
 
     try {
@@ -93,6 +106,7 @@ export default class AgentsController extends Controller {
           human_username: this.currentUser.username,
           agent_username: this.agentUsername.trim().toLowerCase(),
           agent_display_name: this.agentDisplayName.trim(),
+          terms_accepted: true,
         }),
       });
 
