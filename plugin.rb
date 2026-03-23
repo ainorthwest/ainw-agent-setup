@@ -6,8 +6,6 @@
 # authors: Lightcone Studios
 # url: https://github.com/ainorthwest/ainw-agent-setup
 
-enabled_site_setting :discourse_subscriptions_enabled
-
 register_asset "stylesheets/agent-setup.scss"
 
 after_initialize do
@@ -21,10 +19,17 @@ after_initialize do
     end
   end
 
+  # Load jobs before event hooks that reference them
+  require_relative "app/jobs/regular/ainw_auto_provision_agent"
+  require_relative "app/jobs/regular/ainw_sync_username_change"
+  require_relative "app/controllers/ainw_agent_setup/agent_controller"
+
   # Routes
   AinwAgentSetup::Engine.routes.draw do
     get "/" => "agent#index"
     get ".json" => "agent#index"
+    get "/status" => "agent#status"
+    get "/status.json" => "agent#status"
     get "/configure" => "agent#configure"
     get "/configure.json" => "agent#configure"
     put "/configure" => "agent#update_agent"
@@ -36,14 +41,13 @@ after_initialize do
     mount ::AinwAgentSetup::Engine, at: "/agents"
   end
 
-  require_relative "app/controllers/ainw_agent_setup/agent_controller"
-
   # Auto-provision agent when user is added to the "bundle" group
+  # Guarded narrowly — only the provisioning hook needs Subscriptions to be active
   DiscourseEvent.on(:user_added_to_group) do |user, group|
     next unless group.name == "bundle"
 
-    # Skip if user already has a linked agent (field 7)
-    linked_agent = user.user_fields&.dig(7)
+    # Skip if user already has a linked agent (field 7) — string keys
+    linked_agent = user.user_fields&.dig("7")
     next if linked_agent.present?
 
     Jobs.enqueue(
@@ -57,33 +61,26 @@ after_initialize do
   # Username change sync — bidirectional
   DiscourseEvent.on(:user_updated) do |user|
     if user.saved_change_to_username?
-      old_username = user.username_before_last_save
       new_username = user.username
 
-      linked_agent = user.user_fields&.dig(7)
-      linked_human = user.user_fields&.dig(8)
+      linked_agent = user.user_fields&.dig("7")
+      linked_human = user.user_fields&.dig("8")
 
       if linked_agent.present?
-        # Human renamed → update field 8 (linked-human) on the agent's profile
         Jobs.enqueue(
           :ainw_sync_username_change,
           target_username: linked_agent,
-          field_id: 8,
+          field_id: "8",
           new_value: new_username
         )
       elsif linked_human.present?
-        # Agent renamed → update field 7 (linked-agent) on the human's profile
         Jobs.enqueue(
           :ainw_sync_username_change,
           target_username: linked_human,
-          field_id: 7,
+          field_id: "7",
           new_value: new_username
         )
       end
     end
   end
-
-  # Load jobs
-  require_relative "app/jobs/regular/ainw_auto_provision_agent"
-  require_relative "app/jobs/regular/ainw_sync_username_change"
 end

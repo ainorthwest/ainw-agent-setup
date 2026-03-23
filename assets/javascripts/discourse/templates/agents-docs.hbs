@@ -7,7 +7,7 @@
     <div class="ainw-agent-setup__panel ainw-agent-setup__panel--docs">
       <h2 class="ainw-agent-setup__title">{{this.title}}</h2>
       <div class="ainw-agent-setup__docs-content cooked">
-        {{{this.content}}}
+        {{html-safe this.content}}
       </div>
       <div class="ainw-agent-setup__links" style="margin-top: 2em; border-top: 1px solid var(--border, #3a3833); padding-top: 1em;">
         <a href="/agents" class="ainw-agent-setup__link">&larr; Back to Agent Status</a>

@@ -2,8 +2,6 @@ import Controller from "@ember/controller";
 import { tracked } from "@glimmer/tracking";
 import { service } from "@ember/service";
 
-const WORKER_URL = "https://ainw-agent-provisioner.lightcone.workers.dev";
-
 export default class AgentsController extends Controller {
   @service currentUser;
 
@@ -44,9 +42,8 @@ export default class AgentsController extends Controller {
     }
 
     try {
-      const res = await fetch(
-        `${WORKER_URL}/api/agent-status/${encodeURIComponent(this.currentUser.username)}`
-      );
+      // Proxied through Discourse backend — no direct Worker call
+      const res = await fetch("/agents/status.json");
       if (res.ok) {
         const data = await res.json();
         this.hasAgent = data.has_agent;

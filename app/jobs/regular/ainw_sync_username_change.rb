@@ -17,8 +17,8 @@ module Jobs
         return
       end
 
-      target_user.user_fields ||= {}
-      target_user.user_fields[field_id.to_s] = new_value
+      # Use Discourse's proper custom field API — hash mutation doesn't persist
+      target_user.set_user_field(field_id.to_i, new_value)
       target_user.save!
 
       Rails.logger.info("[ainw-agent-setup] Username sync: updated field #{field_id} on #{target_username} to #{new_value}")

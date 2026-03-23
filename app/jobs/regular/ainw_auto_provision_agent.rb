@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require "net/http"
+require "json"
+
 module Jobs
   class AinwAutoProvisionAgent < ::Jobs::Base
     sidekiq_options retry: 3
@@ -7,7 +10,6 @@ module Jobs
     def execute(args)
       username = args[:username]
       email = args[:email]
-      user_id = args[:user_id]
 
       return if username.blank? || email.blank?
 
@@ -15,7 +17,7 @@ module Jobs
       secret = SiteSetting.ainw_provision_secret
 
       if secret.blank?
-        Rails.logger.warn("[ainw-agent-setup] AINW_PROVISION_SECRET not configured, skipping auto-provision for #{username}")
+        Rails.logger.warn("[ainw-agent-setup] ainw_provision_secret not configured, skipping auto-provision for #{username}")
         return
       end
 
@@ -37,19 +39,22 @@ module Jobs
       else
         Rails.logger.error("[ainw-agent-setup] Auto-provision failed for #{username}: #{response.code} #{body['error']}")
 
-        # Create staff notification on final failure
-        if executions >= 3
+        # Notify staff on failure — Sidekiq will retry up to 3 times.
+        # The notification fires on every failure so at least one gets through.
+        begin
           PostCreator.create!(
             Discourse.system_user,
             title: "Agent auto-provision failed for #{username}",
-            raw: "The agent auto-provisioning system failed after 3 retries.\n\n" \
+            raw: "The agent auto-provisioning system failed.\n\n" \
                  "**User:** #{username}\n" \
                  "**Error:** #{body['error'] || 'Unknown'}\n" \
                  "**HTTP Status:** #{response.code}\n\n" \
-                 "Please provision this agent manually via the Worker API.",
+                 "Please provision this agent manually via the Worker API or Discourse admin.",
             archetype: Archetype.private_message,
             target_usernames: "aaron"
           )
+        rescue => e
+          Rails.logger.error("[ainw-agent-setup] Failed to send staff notification: #{e.message}")
         end
 
         raise "Auto-provision failed: #{response.code} #{body['error']}"
