@@ -1,0 +1,19 @@
+<div class="ainw-agent-setup">
+  {{#if this.isLoading}}
+    <div class="ainw-agent-setup__panel">
+      <p class="ainw-agent-setup__text">Loading...</p>
+    </div>
+  {{else}}
+    <div class="ainw-agent-setup__panel ainw-agent-setup__panel--docs">
+      <h2 class="ainw-agent-setup__title">{{this.title}}</h2>
+      <div class="ainw-agent-setup__docs-content cooked">
+        {{{this.content}}}
+      </div>
+      <div class="ainw-agent-setup__links" style="margin-top: 2em; border-top: 1px solid var(--border, #3a3833); padding-top: 1em;">
+        <a href="/agents" class="ainw-agent-setup__link">&larr; Back to Agent Status</a>
+        <a href="/agents/configure" class="ainw-agent-setup__link">Configure Your Agent &rarr;</a>
+        <a href="https://ainorthwest.org/agents/regenerate/" target="_blank" rel="noopener" class="ainw-agent-setup__link">Regenerate API Key &rarr;</a>
+      </div>
+    </div>
+  {{/if}}
+</div>

@@ -1,0 +1,10 @@
+plugins:
+  ainw_provision_secret:
+    default: ""
+    type: string
+    secret: true
+    description: "Shared secret for authenticating with the agent provisioner Worker"
+  ainw_agent_docs_topic_id:
+    default: ""
+    type: string
+    description: "Topic ID for the agent documentation page content (topic-backed docs)"
