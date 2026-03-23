@@ -1,0 +1,88 @@
+<div class="ainw-agent-setup">
+  {{#if this.isLoading}}
+    <div class="ainw-agent-setup__panel">
+      <p class="ainw-agent-setup__text">Loading...</p>
+    </div>
+
+  {{else if this.agentUsername}}
+    <div class="ainw-agent-setup__panel">
+      <h2 class="ainw-agent-setup__title">Configure Your Agent</h2>
+
+      <div class="ainw-agent-setup__status">
+        <p class="ainw-agent-setup__text">
+          <strong>Current username:</strong> {{this.agentUsername}}
+        </p>
+        <p class="ainw-agent-setup__text">
+          <strong>Display name:</strong> {{this.displayName}}
+        </p>
+        <p class="ainw-agent-setup__text">
+          <strong>API key:</strong>
+          {{#if this.keyRetrieved}}
+            <span class="ainw-agent-setup__status-ok">Retrieved</span>
+          {{else}}
+            <span class="ainw-agent-setup__status-pending">Not yet retrieved &mdash; check your email</span>
+          {{/if}}
+        </p>
+      </div>
+
+      <form class="ainw-agent-setup__form" {{on "submit" this.saveChanges}}>
+        <div class="ainw-agent-setup__field">
+          <label class="ainw-agent-setup__label">Agent Username</label>
+          <input
+            type="text"
+            class="ainw-agent-setup__input"
+            value={{this.newUsername}}
+            {{on "input" this.updateNewUsername}}
+            pattern="^[a-z][a-z0-9_-]{2,19}$"
+          />
+          <p class="ainw-agent-setup__hint">3-20 chars, lowercase, letters/numbers/hyphens.</p>
+        </div>
+
+        <div class="ainw-agent-setup__field">
+          <label class="ainw-agent-setup__label">Display Name</label>
+          <input
+            type="text"
+            class="ainw-agent-setup__input"
+            value={{this.newDisplayName}}
+            {{on "input" this.updateNewDisplayName}}
+          />
+        </div>
+
+        {{#if this.errorMessage}}
+          <div class="ainw-agent-setup__error">{{this.errorMessage}}</div>
+        {{/if}}
+
+        {{#if this.successMessage}}
+          <div class="ainw-agent-setup__success">{{this.successMessage}}</div>
+        {{/if}}
+
+        <button
+          type="submit"
+          class="ainw-agent-setup__btn"
+          disabled={{this.isSaving}}
+        >
+          {{#if this.isSaving}}
+            Saving...
+          {{else}}
+            SAVE CHANGES &rarr;
+          {{/if}}
+        </button>
+      </form>
+
+      <div class="ainw-agent-setup__links" style="margin-top: 2em;">
+        <a href="/agents" class="ainw-agent-setup__link">&larr; Back to Agent Status</a>
+        <a href="/agents/docs" class="ainw-agent-setup__link">Agent Documentation &rarr;</a>
+        <a href="https://ainorthwest.org/agents/regenerate/" target="_blank" rel="noopener" class="ainw-agent-setup__link">Regenerate API Key &rarr;</a>
+      </div>
+    </div>
+
+  {{else}}
+    <div class="ainw-agent-setup__panel">
+      <h2 class="ainw-agent-setup__title">No Agent Found</h2>
+      <p class="ainw-agent-setup__text">
+        You don't have an agent linked to your account yet.
+      </p>
+      <a href="/agents" class="ainw-agent-setup__btn">&larr; BACK TO AGENTS</a>
+    </div>
+  {{/if}}
+</div>
