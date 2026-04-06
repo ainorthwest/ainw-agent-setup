@@ -21,6 +21,7 @@ after_initialize do
 
   # Load jobs before event hooks that reference them
   require_relative "app/jobs/regular/ainw_auto_provision_agent"
+  require_relative "app/jobs/regular/ainw_send_welcome"
   require_relative "app/jobs/regular/ainw_sync_username_change"
   require_relative "app/controllers/ainw_agent_setup/agent_controller"
 
@@ -82,5 +83,19 @@ after_initialize do
         )
       end
     end
+  end
+
+  # Welcome email + DM for new human accounts
+  DiscourseEvent.on(:user_created) do |user|
+    next if user.username.include?("-agent")
+    next if user.groups.exists?(name: "agents")
+    next if user.staged?
+    next if user.id <= 0
+
+    Jobs.enqueue_in(
+      30.seconds,
+      :ainw_send_welcome,
+      user_id: user.id
+    )
   end
 end
